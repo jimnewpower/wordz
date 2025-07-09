@@ -35,7 +35,7 @@ h1 {
     grid-template-columns: repeat(15, 1fr);
     grid-template-rows: repeat(15, 1fr);
     gap: 2px;
-    background-color: #8B4513;
+    background-color: #ffffff;
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
@@ -44,8 +44,8 @@ h1 {
 }
 
 .cell {
-    background-color: #DEB887;
-    border: 1px solid #8B4513;
+    background-color: #ffffff;
+    border: 1px solid #b3b3b3;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -66,22 +66,22 @@ h1 {
 
 /* Special cell types */
 .triple-word {
-    background-color: #FF6B6B;
+    background-color: #ff3333;
     color: white;
 }
 
 .double-word {
-    background-color: #FFB6C1;
+    background-color: #ec8e9c;
     color: #333;
 }
 
 .triple-letter {
-    background-color: #4ECDC4;
+    background-color: #3157ff;
     color: white;
 }
 
 .double-letter {
-    background-color: #87CEEB;
+    background-color: #64b7d8;
     color: #333;
 }
 
@@ -93,7 +93,7 @@ h1 {
 
 /* Regular cells */
 .regular {
-    background-color: #DEB887;
+    background-color: #dab990;
     color: #333;
 }
 
