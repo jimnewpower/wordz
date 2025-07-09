@@ -1,0 +1,174 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+h1 {
+    color: white;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    font-size: 2.5em;
+}
+
+.board-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.scrabble-board {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+    gap: 2px;
+    background-color: #8B4513;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    width: 600px;
+    height: 600px;
+}
+
+.cell {
+    background-color: #DEB887;
+    border: 1px solid #8B4513;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    min-width: 35px;
+    min-height: 35px;
+}
+
+.cell:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Special cell types */
+.triple-word {
+    background-color: #FF6B6B;
+    color: white;
+}
+
+.double-word {
+    background-color: #FFB6C1;
+    color: #333;
+}
+
+.triple-letter {
+    background-color: #4ECDC4;
+    color: white;
+}
+
+.double-letter {
+    background-color: #87CEEB;
+    color: #333;
+}
+
+.star {
+    background-color: #FFD700;
+    color: #333;
+    font-size: 18px;
+}
+
+/* Regular cells */
+.regular {
+    background-color: #DEB887;
+    color: #333;
+}
+
+.info {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+.info p {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.legend-item .cell {
+    width: 30px;
+    height: 30px;
+    font-size: 10px;
+    cursor: default;
+}
+
+.legend-item .cell:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .scrabble-board {
+        width: 400px;
+        height: 400px;
+    }
+    
+    .cell {
+        min-width: 25px;
+        min-height: 25px;
+        font-size: 10px;
+    }
+    
+    .legend {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .scrabble-board {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .cell {
+        min-width: 18px;
+        min-height: 18px;
+        font-size: 8px;
+    }
+} 
