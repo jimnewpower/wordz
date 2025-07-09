@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #91a5ff 0%, #ecf3ff 100%);
     min-height: 100vh;
     padding: 20px;
 }
@@ -35,9 +35,9 @@ h1 {
     grid-template-columns: repeat(15, 1fr);
     grid-template-rows: repeat(15, 1fr);
     gap: 2px;
-    background-color: #ffffff;
-    padding: 10px;
-    border-radius: 8px;
+    background-color: #f0f0f0;
+    padding: 8px;
+    border-radius: 4px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     width: 600px;
     height: 600px;
@@ -93,7 +93,7 @@ h1 {
 
 /* Regular cells */
 .regular {
-    background-color: #dab990;
+    background-color: #dfd5c8;
     color: #333;
 }
 
