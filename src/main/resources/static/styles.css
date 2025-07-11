@@ -260,6 +260,7 @@ h1 {
 
 .cell.has-tile.multiplier-3x .multiplier-indicator {
     background: rgba(49, 87, 255, 0.95); /* Triple letter blue */
+    color: white;
 }
 
 /* Word multiplier indicator for tiles on double/triple word spaces */
@@ -285,6 +286,7 @@ h1 {
 
 .cell.has-tile.word-multiplier-3x .word-multiplier-indicator {
     background: rgba(255, 51, 51, 0.95); /* Triple word red */
+    color: white;
 }
 
 /* Slightly altered colors for tiles on multiplier spaces */
@@ -333,6 +335,7 @@ h1 {
 
 .animated-tile.multiplier-3x .multiplier-indicator {
     background: rgba(49, 87, 255, 0.95); /* Triple letter blue */
+    color: white;
 }
 
 .animated-tile .word-multiplier-indicator {
@@ -357,6 +360,7 @@ h1 {
 
 .animated-tile.word-multiplier-3x .word-multiplier-indicator {
     background: rgba(255, 51, 51, 0.95); /* Triple word red */
+    color: white;
 }
 
 .cell:hover {

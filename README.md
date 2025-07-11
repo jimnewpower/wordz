@@ -101,3 +101,10 @@ mvn test
 - Spring Boot Starter Web
 - Spring Boot Starter Test
 - Spring Boot DevTools (development only) 
+
+
+## Deploying to Heroku
+```bash
+heroku login
+git push heroku main
+```
