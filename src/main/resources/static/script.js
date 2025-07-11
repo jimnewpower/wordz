@@ -70,21 +70,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 else if (isSpecialCell(row, col, specialCells['triple-word'])) {
                     cell.classList.add('triple-word');
                     cell.textContent = 'TW';
+                    // Add border elements for 3 triangles per edge
+                    cell.innerHTML = 'TW<div class="border-top"></div><div class="border-bottom"></div>';
                 }
                 // Check for double word
                 else if (isSpecialCell(row, col, specialCells['double-word'])) {
                     cell.classList.add('double-word');
                     cell.textContent = 'DW';
+                    // Add border elements for 2 triangles per edge
+                    cell.innerHTML = 'DW<div class="border-top"></div><div class="border-bottom"></div>';
                 }
                 // Check for triple letter
                 else if (isSpecialCell(row, col, specialCells['triple-letter'])) {
                     cell.classList.add('triple-letter');
                     cell.textContent = 'TL';
+                    // Add border elements for 3 triangles per edge
+                    cell.innerHTML = 'TL<div class="border-top"></div><div class="border-bottom"></div>';
                 }
                 // Check for double letter
                 else if (isSpecialCell(row, col, specialCells['double-letter'])) {
                     cell.classList.add('double-letter');
                     cell.textContent = 'DL';
+                    // Add border elements for 2 triangles per edge
+                    cell.innerHTML = 'DL<div class="border-top"></div><div class="border-bottom"></div>';
                 }
                 // Regular cell
                 else {
@@ -290,22 +298,22 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check for triple word
             else if (isSpecialCell(row, col, specialCells['triple-word'])) {
                 cell.classList.add('triple-word');
-                cell.textContent = 'TW';
+                cell.innerHTML = 'TW<div class="border-top"></div><div class="border-bottom"></div>';
             }
             // Check for double word
             else if (isSpecialCell(row, col, specialCells['double-word'])) {
                 cell.classList.add('double-word');
-                cell.textContent = 'DW';
+                cell.innerHTML = 'DW<div class="border-top"></div><div class="border-bottom"></div>';
             }
             // Check for triple letter
             else if (isSpecialCell(row, col, specialCells['triple-letter'])) {
                 cell.classList.add('triple-letter');
-                cell.textContent = 'TL';
+                cell.innerHTML = 'TL<div class="border-top"></div><div class="border-bottom"></div>';
             }
             // Check for double letter
             else if (isSpecialCell(row, col, specialCells['double-letter'])) {
                 cell.classList.add('double-letter');
-                cell.textContent = 'DL';
+                cell.innerHTML = 'DL<div class="border-top"></div><div class="border-bottom"></div>';
             }
             // Regular cell
             else {

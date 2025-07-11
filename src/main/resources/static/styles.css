@@ -420,27 +420,217 @@ h1 {
 .triple-word {
     background-color: #ff3333;
     color: white;
+    position: relative;
 }
 
 .double-word {
     background-color: #ec8e9c;
     color: #333;
+    position: relative;
 }
 
 .triple-letter {
     background-color: #3157ff;
     color: white;
+    position: relative;
 }
 
 .double-letter {
     background-color: #64b7d8;
     color: #333;
+    position: relative;
 }
 
 .star {
     background-color: #FFD700;
     color: #333;
     font-size: 18px;
+    position: relative;
+}
+
+/* Triangular borders for special squares */
+.triple-word::before,
+.triple-word::after,
+.triple-word .border-top,
+.triple-word .border-bottom {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    background-color: #ff3333;
+}
+
+.double-word::before,
+.double-word::after,
+.double-word .border-top,
+.double-word .border-bottom {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    background-color: #ec8e9c;
+}
+
+.triple-letter::before,
+.triple-letter::after,
+.triple-letter .border-top,
+.triple-letter .border-bottom {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    background-color: #3157ff;
+}
+
+.double-letter::before,
+.double-letter::after,
+.double-letter .border-top,
+.double-letter .border-bottom {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    background-color: #64b7d8;
+}
+
+/* Triple word triangles (3 triangles per edge) */
+.triple-word::before {
+    top: -4px;
+    left: 8px;
+    border-left: 4px solid #ff3333;
+    border-top: 4px solid #ff3333;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+}
+
+.triple-word::after {
+    top: -4px;
+    right: 8px;
+    border-right: 4px solid #ff3333;
+    border-top: 4px solid #ff3333;
+    border-left: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+}
+
+.triple-word .border-top {
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid #ff3333;
+}
+
+.triple-word .border-bottom {
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 4px solid #ff3333;
+}
+
+/* Double word triangles (2 triangles per edge) */
+.double-word::before {
+    top: -4px;
+    left: 25%;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid #ec8e9c;
+}
+
+.double-word::after {
+    top: -4px;
+    right: 25%;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid #ec8e9c;
+}
+
+.double-word .border-top {
+    bottom: -4px;
+    left: 25%;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 4px solid #ec8e9c;
+}
+
+.double-word .border-bottom {
+    bottom: -4px;
+    right: 25%;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 4px solid #ec8e9c;
+}
+
+/* Triple letter triangles (3 triangles per edge) */
+.triple-letter::before {
+    top: -4px;
+    left: 8px;
+    border-left: 4px solid #3157ff;
+    border-top: 4px solid #3157ff;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+}
+
+.triple-letter::after {
+    top: -4px;
+    right: 8px;
+    border-right: 4px solid #3157ff;
+    border-top: 4px solid #3157ff;
+    border-left: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+}
+
+.triple-letter .border-top {
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid #3157ff;
+}
+
+.triple-letter .border-bottom {
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 4px solid #3157ff;
+}
+
+/* Double letter triangles (2 triangles per edge) */
+.double-letter::before {
+    top: -4px;
+    left: 25%;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid #64b7d8;
+}
+
+.double-letter::after {
+    top: -4px;
+    right: 25%;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid #64b7d8;
+}
+
+.double-letter .border-top {
+    bottom: -4px;
+    left: 25%;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 4px solid #64b7d8;
+}
+
+.double-letter .border-bottom {
+    bottom: -4px;
+    right: 25%;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 4px solid #64b7d8;
 }
 
 /* Responsive design */
