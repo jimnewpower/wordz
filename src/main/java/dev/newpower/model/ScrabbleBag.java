@@ -84,6 +84,7 @@ public class ScrabbleBag {
             ScrabbleTile tile = drawTile();
             if (tile != null) {
                 drawnTiles.add(tile);
+                tiles.remove(tile);
             }
         }
         

@@ -1,5 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
     const board = document.getElementById('scrabbleBoard');
+    const generateBtn = document.getElementById('generatePuzzle');
+    const showSolutionBtn = document.getElementById('showSolution');
+    const remainingTilesDiv = document.getElementById('remainingTiles');
+    const placedCountSpan = document.getElementById('placedCount');
+    const remainingCountSpan = document.getElementById('remainingCount');
+    
+    let currentPuzzle = null;
     
     // Define special cell positions (0-indexed)
     const specialCells = {
@@ -42,50 +49,50 @@ document.addEventListener('DOMContentLoaded', function() {
     const centerRow = 7;
     const centerCol = 7;
     
-    // Generate the board
-    for (let row = 0; row < 15; row++) {
-        for (let col = 0; col < 15; col++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            
-            // Check if this is the center star
-            if (row === centerRow && col === centerCol) {
-                cell.classList.add('star');
-                cell.textContent = '★';
+    // Initialize the board
+    function initializeBoard() {
+        board.innerHTML = '';
+        
+        for (let row = 0; row < 15; row++) {
+            for (let col = 0; col < 15; col++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+                
+                // Check if this is the center star
+                if (row === centerRow && col === centerCol) {
+                    cell.classList.add('star');
+                    cell.textContent = '★';
+                }
+                // Check for triple word
+                else if (isSpecialCell(row, col, specialCells['triple-word'])) {
+                    cell.classList.add('triple-word');
+                    cell.textContent = 'TW';
+                }
+                // Check for double word
+                else if (isSpecialCell(row, col, specialCells['double-word'])) {
+                    cell.classList.add('double-word');
+                    cell.textContent = 'DW';
+                }
+                // Check for triple letter
+                else if (isSpecialCell(row, col, specialCells['triple-letter'])) {
+                    cell.classList.add('triple-letter');
+                    cell.textContent = 'TL';
+                }
+                // Check for double letter
+                else if (isSpecialCell(row, col, specialCells['double-letter'])) {
+                    cell.classList.add('double-letter');
+                    cell.textContent = 'DL';
+                }
+                // Regular cell
+                else {
+                    cell.classList.add('regular');
+                    cell.textContent = '';
+                }
+                
+                board.appendChild(cell);
             }
-            // Check for triple word
-            else if (isSpecialCell(row, col, specialCells['triple-word'])) {
-                cell.classList.add('triple-word');
-                cell.textContent = 'TW';
-            }
-            // Check for double word
-            else if (isSpecialCell(row, col, specialCells['double-word'])) {
-                cell.classList.add('double-word');
-                cell.textContent = 'DW';
-            }
-            // Check for triple letter
-            else if (isSpecialCell(row, col, specialCells['triple-letter'])) {
-                cell.classList.add('triple-letter');
-                cell.textContent = 'TL';
-            }
-            // Check for double letter
-            else if (isSpecialCell(row, col, specialCells['double-letter'])) {
-                cell.classList.add('double-letter');
-                cell.textContent = 'DL';
-            }
-            // Regular cell
-            else {
-                cell.classList.add('regular');
-                cell.textContent = '';
-            }
-            
-            // Add click event for future functionality
-            cell.addEventListener('click', function() {
-                console.log(`Clicked cell at position [${row}, ${col}]`);
-                // You can add game logic here later
-            });
-            
-            board.appendChild(cell);
         }
     }
     
@@ -94,8 +101,111 @@ document.addEventListener('DOMContentLoaded', function() {
         return positions.some(pos => pos[0] === row && pos[1] === col);
     }
     
-    // Add some interactive features
-    console.log('Scrabble board generated successfully!');
-    console.log('Board size: 15x15');
-    console.log('Center star position: [7, 7]');
+    // Generate a new puzzle
+    async function generatePuzzle() {
+        try {
+            const response = await fetch('/api/puzzle/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to generate puzzle');
+            }
+            
+            currentPuzzle = await response.json();
+            displayPuzzle();
+        } catch (error) {
+            console.error('Error generating puzzle:', error);
+            alert('Failed to generate puzzle. Please try again.');
+        }
+    }
+    
+    // Display the puzzle
+    function displayPuzzle() {
+        if (!currentPuzzle) return;
+        
+        // Display board
+        displayBoard();
+        
+        // Display remaining tiles
+        displayRemainingTiles();
+        
+        // Update stats
+        updateStats();
+    }
+    
+    // Display the board with placed tiles
+    function displayBoard() {
+        const boardData = currentPuzzle.board;
+        const cells = boardData.cells;
+        
+        for (let row = 0; row < 15; row++) {
+            for (let col = 0; col < 15; col++) {
+                const cell = board.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                const cellData = cells[row][col];
+                
+                if (cellData.hasTile) {
+                    cell.classList.add('has-tile');
+                    cell.innerHTML = `
+                        <div class="tile-letter">${cellData.letter}</div>
+                        <div class="tile-points">${cellData.points}</div>
+                    `;
+                } else {
+                    cell.classList.remove('has-tile');
+                    // Keep the special cell text (TW, DW, TL, DL, ★)
+                    if (!cell.textContent) {
+                        cell.textContent = '';
+                    }
+                }
+            }
+        }
+    }
+    
+    // Display remaining tiles
+    function displayRemainingTiles() {
+        remainingTilesDiv.innerHTML = '';
+        
+        currentPuzzle.remainingTiles.forEach(tile => {
+            const tileDiv = document.createElement('div');
+            tileDiv.className = 'tile';
+            
+            const letter = tile.letter === ' ' ? 'BLANK' : tile.letter;
+            const points = tile.pointValue;
+            
+            tileDiv.innerHTML = `
+                <div class="letter">${letter}</div>
+                <div class="points">${points}</div>
+            `;
+            
+            remainingTilesDiv.appendChild(tileDiv);
+        });
+    }
+    
+    // Update statistics
+    function updateStats() {
+        placedCountSpan.textContent = currentPuzzle.placedTileCount;
+        remainingCountSpan.textContent = currentPuzzle.remainingTileCount;
+    }
+    
+    // Event listeners
+    generateBtn.addEventListener('click', generatePuzzle);
+    
+    showSolutionBtn.addEventListener('click', function() {
+        if (currentPuzzle) {
+            alert('This is a puzzle! Try to figure out what words you can make with your 7 tiles!');
+        } else {
+            alert('Generate a puzzle first!');
+        }
+    });
+    
+    // Initialize the board on page load
+    initializeBoard();
+    
+    // Generate initial puzzle
+    generatePuzzle();
+    
+    console.log('Scrabble puzzle board initialized!');
 }); 
