@@ -273,9 +273,43 @@ document.addEventListener('DOMContentLoaded', function() {
     function clearBoard() {
         const cells = board.querySelectorAll('.cell');
         cells.forEach(cell => {
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            
             cell.classList.remove('has-tile');
-            // Keep the special cell text (TW, DW, TL, DL, ★)
-            if (!cell.textContent) {
+            // Remove all multiplier classes
+            cell.classList.remove('multiplier-2x', 'multiplier-3x', 'word-multiplier-2x', 'word-multiplier-3x');
+            // Clear all tile content
+            cell.innerHTML = '';
+            
+            // Restore special cell text based on position
+            if (row === centerRow && col === centerCol) {
+                cell.classList.add('star');
+                cell.textContent = '★';
+            }
+            // Check for triple word
+            else if (isSpecialCell(row, col, specialCells['triple-word'])) {
+                cell.classList.add('triple-word');
+                cell.textContent = 'TW';
+            }
+            // Check for double word
+            else if (isSpecialCell(row, col, specialCells['double-word'])) {
+                cell.classList.add('double-word');
+                cell.textContent = 'DW';
+            }
+            // Check for triple letter
+            else if (isSpecialCell(row, col, specialCells['triple-letter'])) {
+                cell.classList.add('triple-letter');
+                cell.textContent = 'TL';
+            }
+            // Check for double letter
+            else if (isSpecialCell(row, col, specialCells['double-letter'])) {
+                cell.classList.add('double-letter');
+                cell.textContent = 'DL';
+            }
+            // Regular cell
+            else {
+                cell.classList.add('regular');
                 cell.textContent = '';
             }
         });
