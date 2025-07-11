@@ -616,6 +616,8 @@ public class ScrabblePuzzleService {
                         placementEvent.put("direction", "horizontal");
                         placementEvent.put("position", i);
                         placementEvent.put("totalTiles", word.length());
+                        placementEvent.put("letterMultiplier", board.getLetterMultiplier(row, col + i));
+                        placementEvent.put("wordMultiplier", board.getWordMultiplier(row, col + i));
                         
                         placementCallback.accept(placementEvent);
                         
@@ -654,6 +656,8 @@ public class ScrabblePuzzleService {
                         placementEvent.put("direction", "vertical");
                         placementEvent.put("position", i);
                         placementEvent.put("totalTiles", word.length());
+                        placementEvent.put("letterMultiplier", board.getLetterMultiplier(row + i, col));
+                        placementEvent.put("wordMultiplier", board.getWordMultiplier(row + i, col));
                         
                         placementCallback.accept(placementEvent);
                         

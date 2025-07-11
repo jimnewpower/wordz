@@ -183,17 +183,39 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Animate tile placement
     function animateTilePlacement(placementData) {
-        const { row, col, letter, points, word, direction, position, totalTiles } = placementData;
+        const { row, col, letter, points, word, direction, position, totalTiles, letterMultiplier, wordMultiplier } = placementData;
         const cell = board.querySelector(`[data-row="${row}"][data-col="${col}"]`);
         
         if (cell) {
             // Create animated tile element
             const tileElement = document.createElement('div');
             tileElement.className = 'animated-tile';
-            tileElement.innerHTML = `
+            
+            // Add multiplier classes if applicable
+            if (letterMultiplier > 1) {
+                tileElement.classList.add(`multiplier-${letterMultiplier}x`);
+            }
+            if (wordMultiplier > 1) {
+                tileElement.classList.add(`word-multiplier-${wordMultiplier}x`);
+            }
+            
+            // Create tile content with multiplier indicators
+            let tileContent = `
                 <div class="tile-letter">${letter}</div>
                 <div class="tile-points">${points}</div>
             `;
+            
+            // Add letter multiplier indicator if applicable
+            if (letterMultiplier > 1) {
+                tileContent += `<div class="multiplier-indicator">${letterMultiplier}x</div>`;
+            }
+            
+            // Add word multiplier indicator if applicable
+            if (wordMultiplier > 1) {
+                tileContent += `<div class="word-multiplier-indicator">${wordMultiplier}x</div>`;
+            }
+            
+            tileElement.innerHTML = tileContent;
             
             // Add word info for debugging
             tileElement.title = `Word: ${word} (${direction}, ${position + 1}/${totalTiles})`;
@@ -216,10 +238,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 // After animation completes, update the cell permanently
                 setTimeout(() => {
                     cell.classList.add('has-tile');
-                    cell.innerHTML = `
+                    
+                    // Add multiplier classes to cell if applicable
+                    if (letterMultiplier > 1) {
+                        cell.classList.add(`multiplier-${letterMultiplier}x`);
+                    }
+                    if (wordMultiplier > 1) {
+                        cell.classList.add(`word-multiplier-${wordMultiplier}x`);
+                    }
+                    
+                    // Create final tile content
+                    let finalTileContent = `
                         <div class="tile-letter">${letter}</div>
                         <div class="tile-points">${points}</div>
                     `;
+                    
+                    // Add letter multiplier indicator if applicable
+                    if (letterMultiplier > 1) {
+                        finalTileContent += `<div class="multiplier-indicator">${letterMultiplier}x</div>`;
+                    }
+                    
+                    // Add word multiplier indicator if applicable
+                    if (wordMultiplier > 1) {
+                        finalTileContent += `<div class="word-multiplier-indicator">${wordMultiplier}x</div>`;
+                    }
+                    
+                    cell.innerHTML = finalTileContent;
                 }, 300); // Match the CSS animation duration
             }, position * 150); // 150ms delay between each letter in a word
         }
@@ -285,12 +329,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (cellData.hasTile) {
                     cell.classList.add('has-tile');
-                    cell.innerHTML = `
+                    
+                    // Add multiplier classes if applicable
+                    if (cellData.letterMultiplier > 1) {
+                        cell.classList.add(`multiplier-${cellData.letterMultiplier}x`);
+                    }
+                    if (cellData.wordMultiplier > 1) {
+                        cell.classList.add(`word-multiplier-${cellData.wordMultiplier}x`);
+                    }
+                    
+                    // Create tile content with multiplier indicators
+                    let tileContent = `
                         <div class="tile-letter">${cellData.letter}</div>
                         <div class="tile-points">${cellData.points}</div>
                     `;
+                    
+                    // Add letter multiplier indicator if applicable
+                    if (cellData.letterMultiplier > 1) {
+                        tileContent += `<div class="multiplier-indicator">${cellData.letterMultiplier}x</div>`;
+                    }
+                    
+                    // Add word multiplier indicator if applicable
+                    if (cellData.wordMultiplier > 1) {
+                        tileContent += `<div class="word-multiplier-indicator">${cellData.wordMultiplier}x</div>`;
+                    }
+                    
+                    cell.innerHTML = tileContent;
                 } else {
                     cell.classList.remove('has-tile');
+                    // Remove any multiplier classes
+                    cell.classList.remove('multiplier-2x', 'multiplier-3x', 'word-multiplier-2x', 'word-multiplier-3x');
                     // Keep the special cell text (TW, DW, TL, DL, ★)
                     if (!cell.textContent) {
                         cell.textContent = '';

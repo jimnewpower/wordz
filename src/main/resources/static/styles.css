@@ -84,8 +84,8 @@ h1 {
 .tile {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-    border: 2px solid #8B4513;
+    background: linear-gradient(135deg, #ffee8e 0%, #ffc24f 100%);
+    border: 1px solid #8f8f8f;
     border-radius: 2px;
     display: flex;
     flex-direction: column;
@@ -109,7 +109,6 @@ h1 {
     position: absolute;
     bottom: 2px;
     right: 2px;
-    background: rgba(255,255,255,0.9);
     border-radius: 50%;
     width: 12px;
     height: 12px;
@@ -149,8 +148,8 @@ h1 {
 
 /* Animated tile placement */
 .animated-tile {
-    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-    border: 2px solid #8B4513;
+    background: linear-gradient(135deg, #ffee8e 0%, #ffc24f 100%);
+    border: 1px solid #8f8f8f;
     border-radius: 2px;
     display: flex;
     flex-direction: column;
@@ -166,7 +165,7 @@ h1 {
 }
 
 .animated-tile.tile-placed {
-    opacity: 1;
+    opacity: 0.9;
     transform: scale(1) rotate(0deg);
 }
 
@@ -182,7 +181,6 @@ h1 {
     bottom: 2px;
     right: 2px;
     font-size: 8px;
-    background: rgba(255,255,255,0.9);
     border-radius: 50%;
     width: 12px;
     height: 12px;
@@ -211,9 +209,10 @@ h1 {
 }
 
 .cell.has-tile {
-    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-    border: 2px solid #8B4513;
+    background: linear-gradient(135deg, #ffee8e 0%, #ffc24f 100%);
+    border: 1px solid #8f8f8f;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    opacity: 0.9;
 }
 
 .cell .tile-letter {
@@ -228,7 +227,6 @@ h1 {
     bottom: 2px;
     right: 2px;
     font-size: 8px;
-    background: rgba(255,255,255,0.9);
     border-radius: 50%;
     width: 12px;
     height: 12px;
@@ -237,6 +235,128 @@ h1 {
     justify-content: center;
     color: #333;
     font-weight: bold;
+}
+
+/* Multiplier indicator for tiles on double/triple letter spaces */
+.cell .multiplier-indicator {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    font-size: 8px;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Letter multiplier indicators - match underlying square colors */
+.cell.has-tile.multiplier-2x .multiplier-indicator {
+    background: rgba(100, 183, 216, 0.95); /* Double letter blue */
+}
+
+.cell.has-tile.multiplier-3x .multiplier-indicator {
+    background: rgba(49, 87, 255, 0.95); /* Triple letter blue */
+}
+
+/* Word multiplier indicator for tiles on double/triple word spaces */
+.cell .word-multiplier-indicator {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 8px;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Word multiplier indicators - match underlying square colors */
+.cell.has-tile.word-multiplier-2x .word-multiplier-indicator {
+    background: rgba(236, 142, 156, 0.95); /* Double word pink */
+}
+
+.cell.has-tile.word-multiplier-3x .word-multiplier-indicator {
+    background: rgba(255, 51, 51, 0.95); /* Triple word red */
+}
+
+/* Slightly altered colors for tiles on multiplier spaces */
+.cell.has-tile.multiplier-2x {
+    background: linear-gradient(135deg, #ffee8e 0%, #ffc24f 100%);
+    border: 2px solid #D68910;
+    opacity: 0.9;
+}
+
+.cell.has-tile.multiplier-3x {
+    background: linear-gradient(135deg, #ffee8e 0%, #ffc24f 100%);
+    border: 2px solid #B8860B;
+    opacity: 0.9;
+}
+
+/* Animated tiles with multipliers */
+.animated-tile.multiplier-2x {
+    background: linear-gradient(135deg, #ffee8e 0%, #ffc24f 100%);
+    border: 2px solid #D68910;
+}
+
+.animated-tile.multiplier-3x {
+    background: linear-gradient(135deg, #ffee8e 0%, #ffc24f 100%);
+    border: 2px solid #B8860B;
+}
+
+.animated-tile .multiplier-indicator {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    font-size: 8px;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Animated letter multiplier indicators - match underlying square colors */
+.animated-tile.multiplier-2x .multiplier-indicator {
+    background: rgba(100, 183, 216, 0.95); /* Double letter blue */
+}
+
+.animated-tile.multiplier-3x .multiplier-indicator {
+    background: rgba(49, 87, 255, 0.95); /* Triple letter blue */
+}
+
+.animated-tile .word-multiplier-indicator {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 8px;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Animated word multiplier indicators - match underlying square colors */
+.animated-tile.word-multiplier-2x .word-multiplier-indicator {
+    background: rgba(236, 142, 156, 0.95); /* Double word pink */
+}
+
+.animated-tile.word-multiplier-3x .word-multiplier-indicator {
+    background: rgba(255, 51, 51, 0.95); /* Triple word red */
 }
 
 .cell:hover {
