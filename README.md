@@ -50,8 +50,9 @@ wordz/
 
 Once the application is running, you can access:
 
-- **Home page:** http://localhost:8080/
-- **Health check:** http://localhost:8080/health
+- **Home page:** http://localhost:8084/
+- **Health check:** http://localhost:8084/health
+- **API Documentation:** http://localhost:8084/api-docs.html
 
 ## Features
 
@@ -60,7 +61,19 @@ Once the application is running, you can access:
 - Maven build system
 - Web starter for REST endpoints
 - DevTools for development convenience
-- Basic health check endpoint
+- Scrabble puzzle generation
+- Tile bag management
+- Word validation
+- Comprehensive API documentation
+
+## API Features
+
+The application provides a RESTful API for:
+
+- **Puzzle Generation:** Create Scrabble puzzles with valid word placements
+- **Tile Management:** Draw, reset, and shuffle Scrabble tile bags
+- **Game Information:** Get letter point values and distribution data
+- **Health Monitoring:** Application status and health checks
 
 ## Development
 

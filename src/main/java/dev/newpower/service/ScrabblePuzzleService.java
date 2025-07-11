@@ -22,7 +22,7 @@ public class ScrabblePuzzleService {
     
     /**
      * Generates a new Scrabble puzzle with 93 tiles placed as valid words
-     * and returns the remaining 7 tiles as the puzzle.
+     * and returns 7 random tiles from the remaining tiles as the puzzle.
      */
     public Map<String, Object> generatePuzzle() {
         // Reset everything
@@ -32,15 +32,16 @@ public class ScrabblePuzzleService {
         // Place words on the board
         placeWordsOnBoard();
         
-        // Get remaining tiles (should be 7)
-        List<ScrabbleTile> remainingTiles = bag.getRemainingTilesList();
+        // Get all remaining tiles and select 7 random ones
+        List<ScrabbleTile> allRemainingTiles = bag.getRemainingTilesList();
+        List<ScrabbleTile> selectedTiles = selectRandomTiles(allRemainingTiles, 7);
         
         // Create response
         Map<String, Object> puzzle = new HashMap<>();
         puzzle.put("board", getBoardState());
-        puzzle.put("remainingTiles", remainingTiles);
+        puzzle.put("remainingTiles", selectedTiles);
         puzzle.put("placedTileCount", board.getPlacedTileCount());
-        puzzle.put("remainingTileCount", remainingTiles.size());
+        puzzle.put("remainingTileCount", allRemainingTiles.size());
         
         return puzzle;
     }
@@ -180,8 +181,9 @@ public class ScrabblePuzzleService {
      * Checks if placing a word horizontally creates valid words in all directions.
      */
     private boolean createsValidWordsHorizontally(String word, int row, int col) {
-        // Check the main word being placed
-        if (!wordDictionaryService.isValidWord(word)) {
+        // Check the complete horizontal word that would be formed (including extensions)
+        String completeHorizontalWord = getCompleteHorizontalWord(word, row, col);
+        if (completeHorizontalWord.length() > 1 && !wordDictionaryService.isValidWord(completeHorizontalWord)) {
             return false;
         }
         
@@ -203,8 +205,9 @@ public class ScrabblePuzzleService {
      * Checks if placing a word vertically creates valid words in all directions.
      */
     private boolean createsValidWordsVertically(String word, int row, int col) {
-        // Check the main word being placed
-        if (!wordDictionaryService.isValidWord(word)) {
+        // Check the complete vertical word that would be formed (including extensions)
+        String completeVerticalWord = getCompleteVerticalWord(word, row, col);
+        if (completeVerticalWord.length() > 1 && !wordDictionaryService.isValidWord(completeVerticalWord)) {
             return false;
         }
         
@@ -272,6 +275,64 @@ public class ScrabblePuzzleService {
         }
         
         return word.toString();
+    }
+
+    /**
+     * Gets the complete horizontal word that would be formed when placing a word at the given position.
+     * This includes any existing tiles that the new word would extend.
+     */
+    private String getCompleteHorizontalWord(String word, int row, int col) {
+        StringBuilder completeWord = new StringBuilder();
+        
+        // Go left to find the start of any existing word
+        int startCol = col;
+        while (startCol > 0 && !board.isEmpty(row, startCol - 1)) {
+            startCol--;
+        }
+        
+        // Build the complete word from left to right
+        for (int c = startCol; c < 15; c++) {
+            if (c >= col && c < col + word.length()) {
+                // This is where our new word goes
+                completeWord.append(word.charAt(c - col));
+            } else if (!board.isEmpty(row, c)) {
+                // This is an existing tile
+                completeWord.append(board.getTile(row, c).getLetter());
+            } else {
+                break;
+            }
+        }
+        
+        return completeWord.toString();
+    }
+
+    /**
+     * Gets the complete vertical word that would be formed when placing a word at the given position.
+     * This includes any existing tiles that the new word would extend.
+     */
+    private String getCompleteVerticalWord(String word, int row, int col) {
+        StringBuilder completeWord = new StringBuilder();
+        
+        // Go up to find the start of any existing word
+        int startRow = row;
+        while (startRow > 0 && !board.isEmpty(startRow - 1, col)) {
+            startRow--;
+        }
+        
+        // Build the complete word from top to bottom
+        for (int r = startRow; r < 15; r++) {
+            if (r >= row && r < row + word.length()) {
+                // This is where our new word goes
+                completeWord.append(word.charAt(r - row));
+            } else if (!board.isEmpty(r, col)) {
+                // This is an existing tile
+                completeWord.append(board.getTile(r, col).getLetter());
+            } else {
+                break;
+            }
+        }
+        
+        return completeWord.toString();
     }
     
     /**
@@ -386,7 +447,7 @@ public class ScrabblePuzzleService {
                 ScrabbleTile tile = findTileForLetter(word.charAt(i));
                 if (tile != null) {
                     board.placeTile(row, col + i, tile);
-                    bag.returnTile(tile); // Remove from bag
+                    // Tile is already removed from bag by findTileForLetter
                 }
             }
         }
@@ -401,23 +462,17 @@ public class ScrabblePuzzleService {
                 ScrabbleTile tile = findTileForLetter(word.charAt(i));
                 if (tile != null) {
                     board.placeTile(row + i, col, tile);
-                    bag.returnTile(tile); // Remove from bag
+                    // Tile is already removed from bag by findTileForLetter
                 }
             }
         }
     }
     
     /**
-     * Finds a tile with the specified letter in the bag.
+     * Finds and removes a tile with the specified letter from the bag.
      */
     private ScrabbleTile findTileForLetter(char letter) {
-        List<ScrabbleTile> remainingTiles = bag.getRemainingTilesList();
-        for (ScrabbleTile tile : remainingTiles) {
-            if (tile.getLetter() == letter) {
-                return tile;
-            }
-        }
-        return null;
+        return bag.removeTileWithLetter(letter);
     }
     
     /**
@@ -425,6 +480,26 @@ public class ScrabblePuzzleService {
      */
     private String getRandomWord(int length) {
         return wordDictionaryService.getRandomWord(length);
+    }
+
+    /**
+     * Selects a random subset of tiles from the given list.
+     * @param tiles The list of tiles to select from
+     * @param count The number of tiles to select
+     * @return A list of randomly selected tiles
+     */
+    private List<ScrabbleTile> selectRandomTiles(List<ScrabbleTile> tiles, int count) {
+        List<ScrabbleTile> copy = new ArrayList<>(tiles);
+        List<ScrabbleTile> selected = new ArrayList<>();
+        Random random = new Random();
+        
+        int tilesToSelect = Math.min(count, copy.size());
+        for (int i = 0; i < tilesToSelect; i++) {
+            int index = random.nextInt(copy.size());
+            selected.add(copy.remove(index));
+        }
+        
+        return selected;
     }
     
     /**
@@ -465,11 +540,15 @@ public class ScrabblePuzzleService {
      * Gets the current puzzle state.
      */
     public Map<String, Object> getCurrentPuzzle() {
+        // Get all remaining tiles and select 7 random ones
+        List<ScrabbleTile> allRemainingTiles = bag.getRemainingTilesList();
+        List<ScrabbleTile> selectedTiles = selectRandomTiles(allRemainingTiles, 7);
+        
         Map<String, Object> puzzle = new HashMap<>();
         puzzle.put("board", getBoardState());
-        puzzle.put("remainingTiles", bag.getRemainingTilesList());
+        puzzle.put("remainingTiles", selectedTiles);
         puzzle.put("placedTileCount", board.getPlacedTileCount());
-        puzzle.put("remainingTileCount", bag.getRemainingTiles());
+        puzzle.put("remainingTileCount", allRemainingTiles.size());
         return puzzle;
     }
 } 

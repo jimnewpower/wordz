@@ -28,7 +28,7 @@ public class ScrabbleTile {
 
     @Override
     public String toString() {
-        return letter == ' ' ? "BLANK" : String.valueOf(letter);
+        return letter == ' ' ? "" : String.valueOf(letter);
     }
 
     @Override

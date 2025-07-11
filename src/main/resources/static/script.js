@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const tileDiv = document.createElement('div');
             tileDiv.className = 'tile';
             
-            const letter = tile.letter === ' ' ? 'BLANK' : tile.letter;
+            const letter = tile.letter === ' ' ? '' : tile.letter;
             const points = tile.pointValue;
             
             tileDiv.innerHTML = `

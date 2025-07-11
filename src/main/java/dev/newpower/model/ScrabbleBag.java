@@ -84,7 +84,6 @@ public class ScrabbleBag {
             ScrabbleTile tile = drawTile();
             if (tile != null) {
                 drawnTiles.add(tile);
-                tiles.remove(tile);
             }
         }
         
@@ -109,6 +108,21 @@ public class ScrabbleBag {
         if (tile != null) {
             tiles.add(tile);
         }
+    }
+
+    /**
+     * Removes a tile with the specified letter from the bag.
+     * @param letter The letter of the tile to remove
+     * @return The removed tile, or null if not found
+     */
+    public ScrabbleTile removeTileWithLetter(char letter) {
+        for (int i = 0; i < tiles.size(); i++) {
+            ScrabbleTile tile = tiles.get(i);
+            if (tile.getLetter() == letter) {
+                return tiles.remove(i);
+            }
+        }
+        return null;
     }
 
     /**
