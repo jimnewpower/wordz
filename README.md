@@ -103,6 +103,12 @@ mvn test
 - Spring Boot DevTools (development only) 
 
 
+## Initialize Heroku App
+```bash
+heroku login
+heroku git:remote -a wordz-app
+```
+
 ## Deploying to Heroku
 ```bash
 heroku login
