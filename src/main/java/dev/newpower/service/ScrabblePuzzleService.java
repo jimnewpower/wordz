@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Service for generating Scrabble puzzles with valid words and remaining tiles.
@@ -25,12 +26,29 @@ public class ScrabblePuzzleService {
      * and returns 7 random tiles from the remaining tiles as the puzzle.
      */
     public Map<String, Object> generatePuzzle() {
+        return generatePuzzle(null);
+    }
+    
+    /**
+     * Generates a new Scrabble puzzle with placement events.
+     */
+    public Map<String, Object> generatePuzzle(Consumer<Map<String, Object>> placementCallback) {
         // Reset everything
         bag.reset();
         board.clear();
         
+        // Send initial progress event
+        if (placementCallback != null) {
+            Map<String, Object> progressEvent = new HashMap<>();
+            progressEvent.put("type", "progress_update");
+            progressEvent.put("tilesPlaced", 0);
+            progressEvent.put("totalTiles", 93);
+            progressEvent.put("percentage", 0);
+            placementCallback.accept(progressEvent);
+        }
+        
         // Place words on the board
-        placeWordsOnBoard();
+        placeWordsOnBoard(placementCallback);
         
         // Get all remaining tiles and select 7 random ones
         List<ScrabbleTile> allRemainingTiles = bag.getRemainingTilesList();
@@ -49,70 +67,161 @@ public class ScrabblePuzzleService {
     /**
      * Places valid words on the board using tiles from the bag.
      */
-    private void placeWordsOnBoard() {
+    private void placeWordsOnBoard(Consumer<Map<String, Object>> placementCallback) {
         // Start with a word that goes through the center
         String firstWord = getRandomWord(5);
-        placeWordHorizontally(firstWord, 7, 5); // Center row, starting at column 5
+        placeWordHorizontally(firstWord, 7, 5, placementCallback); // Center row, starting at column 5
         
-        // Place additional words
-        placeAdditionalWords();
+        // Send word completion event
+        if (placementCallback != null) {
+            Map<String, Object> wordCompleteEvent = new HashMap<>();
+            wordCompleteEvent.put("type", "word_complete");
+            wordCompleteEvent.put("word", firstWord);
+            wordCompleteEvent.put("direction", "horizontal");
+            wordCompleteEvent.put("row", 7);
+            wordCompleteEvent.put("col", 5);
+            placementCallback.accept(wordCompleteEvent);
+        }
+        
+        // Place additional words with gameplay simulation
+        placeAdditionalWordsWithGameplay(placementCallback);
     }
     
     /**
-     * Places additional words on the board.
+     * Places additional words on the board simulating actual Scrabble gameplay.
+     * Only places tiles one at a time, ensuring all words are connected to existing tiles.
      */
-    private void placeAdditionalWords() {
+    private void placeAdditionalWordsWithGameplay(Consumer<Map<String, Object>> placementCallback) {
         int attempts = 0;
-        int maxAttempts = 100;
+        int maxAttempts = 300; // Increased for more attempts since we're more selective
         
         while (board.getPlacedTileCount() < 80 && attempts < maxAttempts && bag.getRemainingTiles() > 15) {
             attempts++;
             
-            // Try to place a word vertically
-            if (Math.random() < 0.5) {
-                placeRandomVerticalWord();
-            } else {
-                placeRandomHorizontalWord();
+            // Always try to place a word that connects to existing tiles (Scrabble rule)
+            if (placeConnectingWord(placementCallback)) {
+                // Word was placed successfully, send a delay event
+                if (placementCallback != null) {
+                    Map<String, Object> delayEvent = new HashMap<>();
+                    delayEvent.put("type", "delay");
+                    delayEvent.put("duration", 300);
+                    placementCallback.accept(delayEvent);
+                }
             }
         }
         
-        // If we still have too many tiles, place some simple words
+        // If we still have too many tiles, place some very simple words that connect
         while (bag.getRemainingTiles() > 7 && attempts < maxAttempts * 2) {
             attempts++;
-            placeSimpleWords();
+            if (placeVerySimpleConnectingWords(placementCallback)) {
+                // Word was placed successfully, send a delay event
+                if (placementCallback != null) {
+                    Map<String, Object> delayEvent = new HashMap<>();
+                    delayEvent.put("type", "delay");
+                    delayEvent.put("duration", 200);
+                    placementCallback.accept(delayEvent);
+                }
+            }
         }
     }
     
     /**
-     * Places a random word horizontally on the board.
+     * Places a word that connects to existing tiles on the board (like real Scrabble).
+     * Returns true if a word was placed, false otherwise.
      */
-    private void placeRandomHorizontalWord() {
-        String word = getRandomWord(3 + (int)(Math.random() * 5)); // 3-7 letters
+    private boolean placeConnectingWord(Consumer<Map<String, Object>> placementCallback) {
+        // Try to find a word that can connect to existing tiles
+        String word = getRandomWord(3 + (int)(Math.random() * 4)); // 3-6 letters
         
         // Try to find a valid placement that uses existing tiles
-        List<PlacementOption> validPlacements = findValidHorizontalPlacements(word);
+        List<PlacementOption> horizontalPlacements = findValidHorizontalPlacements(word);
+        List<PlacementOption> verticalPlacements = findValidVerticalPlacements(word);
         
-        if (!validPlacements.isEmpty()) {
+        // Combine all valid placements
+        List<PlacementOption> allValidPlacements = new ArrayList<>();
+        allValidPlacements.addAll(horizontalPlacements);
+        allValidPlacements.addAll(verticalPlacements);
+        
+        if (!allValidPlacements.isEmpty()) {
             // Choose a random valid placement
-            PlacementOption placement = validPlacements.get((int)(Math.random() * validPlacements.size()));
-            placeWordHorizontally(word, placement.row, placement.col);
+            PlacementOption placement = allValidPlacements.get((int)(Math.random() * allValidPlacements.size()));
+            
+            // Determine if it's horizontal or vertical placement
+            boolean isHorizontal = horizontalPlacements.contains(placement);
+            
+            if (isHorizontal) {
+                placeWordHorizontally(word, placement.row, placement.col, placementCallback);
+            } else {
+                placeWordVertically(word, placement.row, placement.col, placementCallback);
+            }
+            
+            // Send word completion event
+            if (placementCallback != null) {
+                Map<String, Object> wordCompleteEvent = new HashMap<>();
+                wordCompleteEvent.put("type", "word_complete");
+                wordCompleteEvent.put("word", word);
+                wordCompleteEvent.put("direction", isHorizontal ? "horizontal" : "vertical");
+                wordCompleteEvent.put("row", placement.row);
+                wordCompleteEvent.put("col", placement.col);
+                placementCallback.accept(wordCompleteEvent);
+            }
+            
+            return true;
         }
+        return false;
     }
     
     /**
-     * Places a random word vertically on the board.
+     * Places very simple 2-3 letter words that connect to existing tiles.
+     * Returns true if a word was placed, false otherwise.
      */
-    private void placeRandomVerticalWord() {
-        String word = getRandomWord(3 + (int)(Math.random() * 5)); // 3-7 letters
+    private boolean placeVerySimpleConnectingWords(Consumer<Map<String, Object>> placementCallback) {
+        String[] simpleWords = {"AT", "IT", "IN", "ON", "TO", "GO", "DO", "BE", "HE", "SHE", "THE", "AND", "FOR", "BUT", "NOT", "HAS", "HAD", "WAS", "ARE", "WERE"};
         
-        // Try to find a valid placement that uses existing tiles
-        List<PlacementOption> validPlacements = findValidVerticalPlacements(word);
-        
-        if (!validPlacements.isEmpty()) {
-            // Choose a random valid placement
-            PlacementOption placement = validPlacements.get((int)(Math.random() * validPlacements.size()));
-            placeWordVertically(word, placement.row, placement.col);
+        for (String word : simpleWords) {
+            if (bag.getRemainingTiles() <= 7) break;
+            
+            // Try horizontal placement that connects to existing tiles
+            List<PlacementOption> horizontalPlacements = findValidHorizontalPlacements(word);
+            if (!horizontalPlacements.isEmpty()) {
+                PlacementOption placement = horizontalPlacements.get(0);
+                placeWordHorizontally(word, placement.row, placement.col, placementCallback);
+                
+                // Send word completion event
+                if (placementCallback != null) {
+                    Map<String, Object> wordCompleteEvent = new HashMap<>();
+                    wordCompleteEvent.put("type", "word_complete");
+                    wordCompleteEvent.put("word", word);
+                    wordCompleteEvent.put("direction", "horizontal");
+                    wordCompleteEvent.put("row", placement.row);
+                    wordCompleteEvent.put("col", placement.col);
+                    placementCallback.accept(wordCompleteEvent);
+                }
+                
+                return true;
+            }
+            
+            // Try vertical placement that connects to existing tiles
+            List<PlacementOption> verticalPlacements = findValidVerticalPlacements(word);
+            if (!verticalPlacements.isEmpty()) {
+                PlacementOption placement = verticalPlacements.get(0);
+                placeWordVertically(word, placement.row, placement.col, placementCallback);
+                
+                // Send word completion event
+                if (placementCallback != null) {
+                    Map<String, Object> wordCompleteEvent = new HashMap<>();
+                    wordCompleteEvent.put("type", "word_complete");
+                    wordCompleteEvent.put("word", word);
+                    wordCompleteEvent.put("direction", "vertical");
+                    wordCompleteEvent.put("row", placement.row);
+                    wordCompleteEvent.put("col", placement.col);
+                    placementCallback.accept(wordCompleteEvent);
+                }
+                
+                return true;
+            }
         }
+        return false;
     }
     
     /**
@@ -124,7 +233,7 @@ public class ScrabblePuzzleService {
         for (int row = 0; row < 15; row++) {
             for (int col = 0; col <= 15 - word.length(); col++) {
                 if (canPlaceWordHorizontally(word, row, col) && 
-                    usesExistingTileHorizontally(word, row, col) &&
+                    isTrulyConnectedHorizontally(word, row, col) &&
                     createsValidWordsHorizontally(word, row, col)) {
                     validPlacements.add(new PlacementOption(row, col));
                 }
@@ -143,7 +252,7 @@ public class ScrabblePuzzleService {
         for (int row = 0; row <= 15 - word.length(); row++) {
             for (int col = 0; col < 15; col++) {
                 if (canPlaceWordVertically(word, row, col) && 
-                    usesExistingTileVertically(word, row, col) &&
+                    isTrulyConnectedVertically(word, row, col) &&
                     createsValidWordsVertically(word, row, col)) {
                     validPlacements.add(new PlacementOption(row, col));
                 }
@@ -223,6 +332,80 @@ public class ScrabblePuzzleService {
         }
         
         return true;
+    }
+    
+    /**
+     * Checks if a horizontal word placement is truly connected to existing tiles.
+     * A word is truly connected if it either:
+     * 1. Uses an existing tile in its placement, OR
+     * 2. Creates a valid word that extends an existing word
+     */
+    private boolean isTrulyConnectedHorizontally(String word, int row, int col) {
+        // Check if the word uses any existing tiles
+        boolean usesExistingTile = false;
+        for (int i = 0; i < word.length(); i++) {
+            if (!board.isEmpty(row, col + i)) {
+                usesExistingTile = true;
+                break;
+            }
+        }
+        
+        if (usesExistingTile) {
+            return true;
+        }
+        
+        // Check if the word extends an existing word horizontally
+        String completeHorizontalWord = getCompleteHorizontalWord(word, row, col);
+        if (completeHorizontalWord.length() > word.length()) {
+            return true;
+        }
+        
+        // Check if the word creates a valid vertical word that extends an existing word
+        for (int i = 0; i < word.length(); i++) {
+            String verticalWord = getVerticalWordAt(row, col + i, word.charAt(i));
+            if (verticalWord.length() > 1) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Checks if a vertical word placement is truly connected to existing tiles.
+     * A word is truly connected if it either:
+     * 1. Uses an existing tile in its placement, OR
+     * 2. Creates a valid word that extends an existing word
+     */
+    private boolean isTrulyConnectedVertically(String word, int row, int col) {
+        // Check if the word uses any existing tiles
+        boolean usesExistingTile = false;
+        for (int i = 0; i < word.length(); i++) {
+            if (!board.isEmpty(row + i, col)) {
+                usesExistingTile = true;
+                break;
+            }
+        }
+        
+        if (usesExistingTile) {
+            return true;
+        }
+        
+        // Check if the word extends an existing word vertically
+        String completeVerticalWord = getCompleteVerticalWord(word, row, col);
+        if (completeVerticalWord.length() > word.length()) {
+            return true;
+        }
+        
+        // Check if the word creates a valid horizontal word that extends an existing word
+        for (int i = 0; i < word.length(); i++) {
+            String horizontalWord = getHorizontalWordAt(row + i, col, word.charAt(i));
+            if (horizontalWord.length() > 1) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     /**
@@ -349,33 +532,6 @@ public class ScrabblePuzzleService {
     }
     
     /**
-     * Places simple 2-3 letter words to use up remaining tiles.
-     */
-    private void placeSimpleWords() {
-        String[] simpleWords = {"AT", "IT", "IN", "ON", "TO", "GO", "DO", "BE", "HE", "SHE", "THE", "AND", "FOR", "BUT", "NOT", "HAS", "HAD", "WAS", "ARE", "WERE"};
-        
-        for (String word : simpleWords) {
-            if (bag.getRemainingTiles() <= 7) break;
-            
-            // Try horizontal placement with Scrabble rules
-            List<PlacementOption> horizontalPlacements = findValidHorizontalPlacements(word);
-            if (!horizontalPlacements.isEmpty()) {
-                PlacementOption placement = horizontalPlacements.get(0);
-                placeWordHorizontally(word, placement.row, placement.col);
-                return;
-            }
-            
-            // Try vertical placement with Scrabble rules
-            List<PlacementOption> verticalPlacements = findValidVerticalPlacements(word);
-            if (!verticalPlacements.isEmpty()) {
-                PlacementOption placement = verticalPlacements.get(0);
-                placeWordVertically(word, placement.row, placement.col);
-                return;
-            }
-        }
-    }
-    
-    /**
      * Checks if a word can be placed horizontally at the given position.
      */
     private boolean canPlaceWordHorizontally(String word, int row, int col) {
@@ -441,13 +597,36 @@ public class ScrabblePuzzleService {
     /**
      * Places a word horizontally on the board.
      */
-    private void placeWordHorizontally(String word, int row, int col) {
+    private void placeWordHorizontally(String word, int row, int col, Consumer<Map<String, Object>> placementCallback) {
         for (int i = 0; i < word.length(); i++) {
             if (board.isEmpty(row, col + i)) {
                 ScrabbleTile tile = findTileForLetter(word.charAt(i));
                 if (tile != null) {
                     board.placeTile(row, col + i, tile);
-                    // Tile is already removed from bag by findTileForLetter
+                    
+                    // Emit placement event if callback is provided
+                    if (placementCallback != null) {
+                        Map<String, Object> placementEvent = new HashMap<>();
+                        placementEvent.put("type", "tile_placed");
+                        placementEvent.put("row", row);
+                        placementEvent.put("col", col + i);
+                        placementEvent.put("letter", tile.getLetter());
+                        placementEvent.put("points", tile.getPointValue());
+                        placementEvent.put("word", word);
+                        placementEvent.put("direction", "horizontal");
+                        placementEvent.put("position", i);
+                        placementEvent.put("totalTiles", word.length());
+                        
+                        placementCallback.accept(placementEvent);
+                        
+                        // Send progress update
+                        Map<String, Object> progressEvent = new HashMap<>();
+                        progressEvent.put("type", "progress_update");
+                        progressEvent.put("tilesPlaced", board.getPlacedTileCount());
+                        progressEvent.put("totalTiles", 93);
+                        progressEvent.put("percentage", Math.round((board.getPlacedTileCount() / 93.0) * 100));
+                        placementCallback.accept(progressEvent);
+                    }
                 }
             }
         }
@@ -456,13 +635,36 @@ public class ScrabblePuzzleService {
     /**
      * Places a word vertically on the board.
      */
-    private void placeWordVertically(String word, int row, int col) {
+    private void placeWordVertically(String word, int row, int col, Consumer<Map<String, Object>> placementCallback) {
         for (int i = 0; i < word.length(); i++) {
             if (board.isEmpty(row + i, col)) {
                 ScrabbleTile tile = findTileForLetter(word.charAt(i));
                 if (tile != null) {
                     board.placeTile(row + i, col, tile);
-                    // Tile is already removed from bag by findTileForLetter
+                    
+                    // Emit placement event if callback is provided
+                    if (placementCallback != null) {
+                        Map<String, Object> placementEvent = new HashMap<>();
+                        placementEvent.put("type", "tile_placed");
+                        placementEvent.put("row", row + i);
+                        placementEvent.put("col", col);
+                        placementEvent.put("letter", tile.getLetter());
+                        placementEvent.put("points", tile.getPointValue());
+                        placementEvent.put("word", word);
+                        placementEvent.put("direction", "vertical");
+                        placementEvent.put("position", i);
+                        placementEvent.put("totalTiles", word.length());
+                        
+                        placementCallback.accept(placementEvent);
+                        
+                        // Send progress update
+                        Map<String, Object> progressEvent = new HashMap<>();
+                        progressEvent.put("type", "progress_update");
+                        progressEvent.put("tilesPlaced", board.getPlacedTileCount());
+                        progressEvent.put("totalTiles", 93);
+                        progressEvent.put("percentage", Math.round((board.getPlacedTileCount() / 93.0) * 100));
+                        placementCallback.accept(progressEvent);
+                    }
                 }
             }
         }

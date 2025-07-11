@@ -141,6 +141,59 @@ h1 {
     height: 600px;
 }
 
+/* Regular cells */
+.regular {
+    background-color: #e0dcd8;
+    color: #333;
+}
+
+/* Animated tile placement */
+.animated-tile {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    border: 2px solid #8B4513;
+    border-radius: 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #333;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    position: relative;
+    opacity: 0;
+    transform: scale(0.5) rotate(180deg);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.animated-tile.tile-placed {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+.animated-tile .tile-letter {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    z-index: 2;
+}
+
+.animated-tile .tile-points {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 8px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Cell position relative for animated tiles */
 .cell {
     background-color: #ffffff;
     border: 1px solid #b3b3b3;
@@ -191,37 +244,12 @@ h1 {
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
-/* Special cell types */
-.triple-word {
-    background-color: #ff3333;
-    color: white;
-}
-
-.double-word {
-    background-color: #ec8e9c;
-    color: #333;
-}
-
-.triple-letter {
-    background-color: #3157ff;
-    color: white;
-}
-
-.double-letter {
-    background-color: #64b7d8;
-    color: #333;
-}
-
-.star {
-    background-color: #FFD700;
-    color: #333;
-    font-size: 18px;
-}
-
-/* Regular cells */
-.regular {
-    background-color: #e0dcd8;
-    color: #333;
+/* Disabled button state */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
 }
 
 .info {
@@ -262,6 +290,33 @@ h1 {
 .legend-item .cell:hover {
     transform: none;
     box-shadow: none;
+}
+
+/* Special cell types */
+.triple-word {
+    background-color: #ff3333;
+    color: white;
+}
+
+.double-word {
+    background-color: #ec8e9c;
+    color: #333;
+}
+
+.triple-letter {
+    background-color: #3157ff;
+    color: white;
+}
+
+.double-letter {
+    background-color: #64b7d8;
+    color: #333;
+}
+
+.star {
+    background-color: #FFD700;
+    color: #333;
+    font-size: 18px;
 }
 
 /* Responsive design */

@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const remainingCountSpan = document.getElementById('remainingCount');
     
     let currentPuzzle = null;
+    let isGenerating = false;
     
     // Define special cell positions (0-indexed)
     const specialCells = {
@@ -101,7 +102,142 @@ document.addEventListener('DOMContentLoaded', function() {
         return positions.some(pos => pos[0] === row && pos[1] === col);
     }
     
-    // Generate a new puzzle
+    // Generate a new puzzle with animation
+    async function generatePuzzleAnimated() {
+        if (isGenerating) return;
+        
+        isGenerating = true;
+        generateBtn.disabled = true;
+        generateBtn.textContent = 'Generating...';
+        
+        // Clear the board
+        clearBoard();
+        
+        try {
+            const eventSource = new EventSource('/api/puzzle/generate-animated');
+            
+            eventSource.addEventListener('generation_started', function(event) {
+                console.log('Puzzle generation started');
+            });
+            
+            eventSource.addEventListener('progress_update', function(event) {
+                const progressData = JSON.parse(event.data);
+                // Progress updates are ignored since we removed the progress bar
+            });
+            
+            eventSource.addEventListener('tile_placed', function(event) {
+                const placementData = JSON.parse(event.data);
+                animateTilePlacement(placementData);
+            });
+            
+            eventSource.addEventListener('word_complete', function(event) {
+                const wordData = JSON.parse(event.data);
+                console.log(`Word completed: ${wordData.word} (${wordData.direction})`);
+            });
+            
+            eventSource.addEventListener('delay', function(event) {
+                const delayData = JSON.parse(event.data);
+                console.log(`Delay: ${delayData.duration}ms`);
+                // The delay is handled by the backend, we just log it
+            });
+            
+            eventSource.addEventListener('generation_complete', function(event) {
+                const puzzleData = JSON.parse(event.data);
+                currentPuzzle = puzzleData;
+                
+                displayRemainingTiles();
+                updateStats();
+                
+                eventSource.close();
+                isGenerating = false;
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate New Puzzle';
+            });
+            
+            eventSource.onerror = function(error) {
+                console.error('EventSource error:', error);
+                eventSource.close();
+                isGenerating = false;
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate New Puzzle';
+                alert('Failed to generate puzzle. Please try again.');
+            };
+            
+        } catch (error) {
+            console.error('Error generating puzzle:', error);
+            alert('Failed to generate puzzle. Please try again.');
+            isGenerating = false;
+            generateBtn.disabled = false;
+            generateBtn.textContent = 'Generate New Puzzle';
+        }
+    }
+    
+    // Handle puzzle events
+    function handlePuzzleEvent(data) {
+        if (data.type === 'tile_placed') {
+            animateTilePlacement(data);
+        } else if (data.type === 'word_complete') {
+            console.log(`Word completed: ${data.word} (${data.direction})`);
+        }
+    }
+    
+    // Animate tile placement
+    function animateTilePlacement(placementData) {
+        const { row, col, letter, points, word, direction, position, totalTiles } = placementData;
+        const cell = board.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+        
+        if (cell) {
+            // Create animated tile element
+            const tileElement = document.createElement('div');
+            tileElement.className = 'animated-tile';
+            tileElement.innerHTML = `
+                <div class="tile-letter">${letter}</div>
+                <div class="tile-points">${points}</div>
+            `;
+            
+            // Add word info for debugging
+            tileElement.title = `Word: ${word} (${direction}, ${position + 1}/${totalTiles})`;
+            
+            // Position the animated tile
+            tileElement.style.position = 'absolute';
+            tileElement.style.top = '0';
+            tileElement.style.left = '0';
+            tileElement.style.width = '100%';
+            tileElement.style.height = '100%';
+            tileElement.style.zIndex = '10';
+            
+            // Add to cell
+            cell.appendChild(tileElement);
+            
+            // Trigger animation with a delay based on position in word
+            setTimeout(() => {
+                tileElement.classList.add('tile-placed');
+                
+                // After animation completes, update the cell permanently
+                setTimeout(() => {
+                    cell.classList.add('has-tile');
+                    cell.innerHTML = `
+                        <div class="tile-letter">${letter}</div>
+                        <div class="tile-points">${points}</div>
+                    `;
+                }, 300); // Match the CSS animation duration
+            }, position * 150); // 150ms delay between each letter in a word
+        }
+    }
+    
+    // Clear the board
+    function clearBoard() {
+        const cells = board.querySelectorAll('.cell');
+        cells.forEach(cell => {
+            cell.classList.remove('has-tile');
+            // Keep the special cell text (TW, DW, TL, DL, ★)
+            if (!cell.textContent) {
+                cell.textContent = '';
+            }
+        });
+    }
+    
+    // Generate a new puzzle (non-animated)
     async function generatePuzzle() {
         try {
             const response = await fetch('/api/puzzle/generate', {
@@ -168,30 +304,34 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayRemainingTiles() {
         remainingTilesDiv.innerHTML = '';
         
-        currentPuzzle.remainingTiles.forEach(tile => {
-            const tileDiv = document.createElement('div');
-            tileDiv.className = 'tile';
-            
-            const letter = tile.letter === ' ' ? '' : tile.letter;
-            const points = tile.pointValue;
-            
-            tileDiv.innerHTML = `
-                <div class="letter">${letter}</div>
-                <div class="points">${points}</div>
-            `;
-            
-            remainingTilesDiv.appendChild(tileDiv);
-        });
+        if (currentPuzzle && currentPuzzle.remainingTiles) {
+            currentPuzzle.remainingTiles.forEach(tile => {
+                const tileDiv = document.createElement('div');
+                tileDiv.className = 'tile';
+                
+                const letter = tile.letter === ' ' ? '' : tile.letter;
+                const points = tile.pointValue;
+                
+                tileDiv.innerHTML = `
+                    <div class="letter">${letter}</div>
+                    <div class="points">${points}</div>
+                `;
+                
+                remainingTilesDiv.appendChild(tileDiv);
+            });
+        }
     }
     
     // Update statistics
     function updateStats() {
-        placedCountSpan.textContent = currentPuzzle.placedTileCount;
-        remainingCountSpan.textContent = currentPuzzle.remainingTileCount;
+        if (currentPuzzle) {
+            placedCountSpan.textContent = currentPuzzle.placedTileCount || 0;
+            remainingCountSpan.textContent = currentPuzzle.remainingTileCount || 0;
+        }
     }
     
     // Event listeners
-    generateBtn.addEventListener('click', generatePuzzle);
+    generateBtn.addEventListener('click', generatePuzzleAnimated);
     
     showSolutionBtn.addEventListener('click', function() {
         if (currentPuzzle) {
@@ -205,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeBoard();
     
     // Generate initial puzzle
-    generatePuzzle();
+    generatePuzzleAnimated();
     
     console.log('Scrabble puzzle board initialized!');
 }); 
