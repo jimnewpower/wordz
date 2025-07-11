@@ -163,12 +163,18 @@ public class WordDictionaryService {
      * Gets a random valid word of specified length.
      */
     public String getRandomWord(int length) {
-        // return validWords.stream()
-        //         .filter(word -> word.length() == length)
-        //         .findAny()
-        //         .orElse("HELLO");
-        int randomIndex = new Random().nextInt(commonWords.length);
-        return commonWords[randomIndex];
+        // Filter common words by length and return a random one
+        String[] wordsOfLength = java.util.Arrays.stream(commonWords)
+                .filter(word -> word.length() == length)
+                .toArray(String[]::new);
+        
+        if (wordsOfLength.length == 0) {
+            // Fallback to a simple word if no words of that length exist
+            return "HELLO".substring(0, Math.min(length, 5));
+        }
+        
+        int randomIndex = new Random().nextInt(wordsOfLength.length);
+        return wordsOfLength[randomIndex];
     }
     
     /**

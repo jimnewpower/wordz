@@ -293,6 +293,7 @@ public class ScrabblePuzzleService {
         // Check the complete horizontal word that would be formed (including extensions)
         String completeHorizontalWord = getCompleteHorizontalWord(word, row, col);
         if (completeHorizontalWord.length() > 1 && !wordDictionaryService.isValidWord(completeHorizontalWord)) {
+            System.out.println("Invalid horizontal word formed: " + completeHorizontalWord + " from placing " + word + " at (" + row + "," + col + ")");
             return false;
         }
         
@@ -302,6 +303,7 @@ public class ScrabblePuzzleService {
                 // This position will have a new tile, check if it creates a valid vertical word
                 String verticalWord = getVerticalWordAt(row, col + i, word.charAt(i));
                 if (verticalWord.length() > 1 && !wordDictionaryService.isValidWord(verticalWord)) {
+                    System.out.println("Invalid vertical word formed: " + verticalWord + " from placing " + word + " at (" + row + "," + col + ")");
                     return false;
                 }
             }
@@ -317,6 +319,7 @@ public class ScrabblePuzzleService {
         // Check the complete vertical word that would be formed (including extensions)
         String completeVerticalWord = getCompleteVerticalWord(word, row, col);
         if (completeVerticalWord.length() > 1 && !wordDictionaryService.isValidWord(completeVerticalWord)) {
+            System.out.println("Invalid vertical word formed: " + completeVerticalWord + " from placing " + word + " at (" + row + "," + col + ")");
             return false;
         }
         
@@ -326,6 +329,7 @@ public class ScrabblePuzzleService {
                 // This position will have a new tile, check if it creates a valid horizontal word
                 String horizontalWord = getHorizontalWordAt(row + i, col, word.charAt(i));
                 if (horizontalWord.length() > 1 && !wordDictionaryService.isValidWord(horizontalWord)) {
+                    System.out.println("Invalid horizontal word formed: " + horizontalWord + " from placing " + word + " at (" + row + "," + col + ")");
                     return false;
                 }
             }
@@ -598,6 +602,7 @@ public class ScrabblePuzzleService {
      * Places a word horizontally on the board.
      */
     private void placeWordHorizontally(String word, int row, int col, Consumer<Map<String, Object>> placementCallback) {
+        System.out.println("Placing word horizontally: " + word + " at (" + row + "," + col + ")");
         for (int i = 0; i < word.length(); i++) {
             if (board.isEmpty(row, col + i)) {
                 ScrabbleTile tile = findTileForLetter(word.charAt(i));
@@ -638,6 +643,7 @@ public class ScrabblePuzzleService {
      * Places a word vertically on the board.
      */
     private void placeWordVertically(String word, int row, int col, Consumer<Map<String, Object>> placementCallback) {
+        System.out.println("Placing word vertically: " + word + " at (" + row + "," + col + ")");
         for (int i = 0; i < word.length(); i++) {
             if (board.isEmpty(row + i, col)) {
                 ScrabbleTile tile = findTileForLetter(word.charAt(i));
