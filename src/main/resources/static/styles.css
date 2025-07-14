@@ -9,12 +9,16 @@ body {
     background: linear-gradient(135deg, #91a5ff 0%, #ecf3ff 100%);
     min-height: 100vh;
     padding: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
     text-align: center;
+    width: 100%;
 }
 
 h1 {
@@ -56,6 +60,8 @@ h1 {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
+    width: 100%;
+    overflow: hidden;
 }
 
 .puzzle-info {
@@ -138,6 +144,8 @@ h1 {
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     width: 600px;
     height: 600px;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 /* Regular cells */
@@ -635,36 +643,346 @@ h1 {
 
 /* Responsive design */
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        max-width: 100%;
+        padding: 0 10px;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 15px;
+    }
+    
+    .controls {
+        margin-bottom: 15px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        margin: 5px;
+    }
+    
     .scrabble-board {
-        width: 400px;
-        height: 400px;
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+        aspect-ratio: 1;
+        gap: 1px;
+        padding: 4px;
     }
     
     .cell {
-        min-width: 25px;
-        min-height: 25px;
-        font-size: 10px;
+        min-width: 20px;
+        min-height: 20px;
+        font-size: 8px;
+        border-width: 0.5px;
+    }
+    
+    .cell .tile-letter {
+        font-size: 12px;
+    }
+    
+    .cell .tile-points {
+        width: 10px;
+        height: 10px;
+        font-size: 6px;
+        bottom: 1px;
+        right: 1px;
+    }
+    
+    .cell .multiplier-indicator,
+    .cell .word-multiplier-indicator {
+        width: 10px;
+        height: 10px;
+        font-size: 6px;
+        bottom: 1px;
+        left: 1px;
+    }
+    
+    .cell .word-multiplier-indicator {
+        top: 1px;
+    }
+    
+    .puzzle-info {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .puzzle-info h3 {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+    
+    .remaining-tiles {
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .tile {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .tile .letter {
+        font-size: 12px;
+    }
+    
+    .tile .points {
+        width: 10px;
+        height: 10px;
+        font-size: 6px;
+    }
+    
+    .puzzle-stats {
+        gap: 20px;
+        font-size: 12px;
     }
     
     .legend {
         flex-direction: column;
         align-items: center;
+        gap: 10px;
     }
     
-    h1 {
-        font-size: 2em;
+    .legend-item {
+        font-size: 12px;
+    }
+    
+    .legend-item .cell {
+        width: 25px;
+        height: 25px;
+        font-size: 8px;
+    }
+    
+    .info {
+        padding: 15px;
+        margin-top: 15px;
+    }
+    
+    .info p {
+        font-size: 1em;
+        margin-bottom: 10px;
     }
 }
 
 @media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+    
+    .container {
+        padding: 0 5px;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+    
+    .controls {
+        margin-bottom: 10px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        font-size: 12px;
+        margin: 3px;
+        border-radius: 20px;
+    }
+    
     .scrabble-board {
-        width: 300px;
-        height: 300px;
+        max-width: 320px;
+        gap: 0.5px;
+        padding: 2px;
     }
     
     .cell {
         min-width: 18px;
         min-height: 18px;
+        font-size: 6px;
+    }
+    
+    .cell .tile-letter {
+        font-size: 10px;
+    }
+    
+    .cell .tile-points {
+        width: 8px;
+        height: 8px;
+        font-size: 5px;
+    }
+    
+    .cell .multiplier-indicator,
+    .cell .word-multiplier-indicator {
+        width: 8px;
+        height: 8px;
+        font-size: 5px;
+    }
+    
+    .puzzle-info {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .puzzle-info h3 {
+        font-size: 1em;
+        margin-bottom: 8px;
+    }
+    
+    .remaining-tiles {
+        gap: 3px;
+        margin-bottom: 8px;
+    }
+    
+    .tile {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .tile .letter {
+        font-size: 10px;
+    }
+    
+    .tile .points {
+        width: 8px;
+        height: 8px;
+        font-size: 5px;
+    }
+    
+    .puzzle-stats {
+        gap: 15px;
+        font-size: 11px;
+    }
+    
+    .legend-item {
+        font-size: 11px;
+    }
+    
+    .legend-item .cell {
+        width: 20px;
+        height: 20px;
+        font-size: 6px;
+    }
+    
+    .info {
+        padding: 10px;
+        margin-top: 10px;
+    }
+    
+    .info p {
+        font-size: 0.9em;
+        margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 360px) {
+    h1 {
+        font-size: 1.3em;
+    }
+    
+    .scrabble-board {
+        max-width: 280px;
+    }
+    
+    .cell {
+        min-width: 16px;
+        min-height: 16px;
+        font-size: 5px;
+    }
+    
+    .cell .tile-letter {
         font-size: 8px;
+    }
+    
+    .tile {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .tile .letter {
+        font-size: 8px;
+    }
+    
+    .btn {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+    body {
+        padding: 5px;
+    }
+    
+    .container {
+        max-width: 100%;
+    }
+    
+    h1 {
+        font-size: 1.2em;
+        margin-bottom: 5px;
+    }
+    
+    .controls {
+        margin-bottom: 5px;
+    }
+    
+    .scrabble-board {
+        max-width: 300px;
+        max-height: 300px;
+    }
+    
+    .puzzle-info {
+        padding: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .puzzle-info h3 {
+        font-size: 0.9em;
+        margin-bottom: 5px;
+    }
+    
+    .remaining-tiles {
+        gap: 3px;
+        margin-bottom: 5px;
+    }
+    
+    .tile {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .tile .letter {
+        font-size: 8px;
+    }
+    
+    .puzzle-stats {
+        gap: 10px;
+        font-size: 10px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .cell:hover {
+        transform: none;
+    }
+    
+    .btn:hover {
+        transform: none;
+    }
+    
+    .btn:active {
+        transform: scale(0.95);
+    }
+    
+    .cell:active {
+        transform: scale(0.95);
     }
 } 
